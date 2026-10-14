@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🦊 ดวลกับจิ้งจอก • Yulumi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a0e24; --bg2:#3a1a4a; --ink:#fbeeff; --muted:#c8a8d8; --pink:#ff8ac8; --purple:#b46cff; --gold:#ffd27a; --red:#ff5a7a;
+  --t1:#ffb3d9; --t2:#c98bff; --t3:#ffd27a;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{ box-sizing:inherit; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; min-height:100%; }
+body{ color:var(--ink); font-family:"Mali","Leelawadee UI","Thonburi",system-ui,sans-serif; overflow-x:hidden;
+  background:radial-gradient(120% 70% at 50% 0%, #5a2a6e 0%, var(--bg2) 35%, var(--bg) 75%); background-color:var(--bg); min-height:100vh; min-height:100dvh; }
+/* petals */
+.petals{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+.petals i{ position:absolute; top:-20px; width:12px; height:9px; border-radius:12px 0 12px 0; background:var(--pink); opacity:.75; animation:fall linear infinite; }
+@keyframes fall{ 0%{ transform:translate(0,-20px) rotate(0); } 100%{ transform:translate(var(--dx),110vh) rotate(540deg); } }
+/* torii silhouette */
+.torii{ position:fixed; left:50%; bottom:-6px; width:min(120vw,620px); transform:translateX(-50%); opacity:.09; pointer-events:none; z-index:0; }
+main{ position:relative; z-index:1; max-width:440px; margin:0 auto; padding:58px 20px 40px; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+.scene{ display:none; flex-direction:column; align-items:center; text-align:center; gap:16px; flex:1; justify-content:center; }
+.scene.on{ display:flex; animation:in .45s ease both; }
+@keyframes in{ from{ opacity:0; transform:translateY(12px);} to{ opacity:1; transform:none;} }
+h1{ margin:0; font-size:clamp(1.8rem,8vw,2.3rem); line-height:1.25; color:#ffd6ee; text-shadow:0 0 18px rgba(255,138,200,.6); }
+.sub{ margin:0; color:var(--muted); line-height:1.7; }
+.small{ font-size:.82rem; color:var(--muted); margin:0; line-height:1.6; }
+.box{ width:100%; background:rgba(26,14,36,.78); border:1px solid rgba(255,214,238,.18); border-radius:20px; padding:18px; text-align:left; }
+label{ display:block; font-size:.95rem; margin:0 0 6px; font-weight:600; }
+input{ width:100%; font:inherit; font-size:1.05rem; padding:12px 14px; border-radius:14px; border:1.5px solid rgba(255,214,238,.3); background:#12081a; color:var(--ink); margin-bottom:14px; }
+input:focus-visible{ outline:3px solid var(--pink); outline-offset:1px; }
+.err{ color:#ff9ab0; font-size:.9rem; min-height:1.3em; margin:-6px 0 8px; }
+.btn{ font:inherit; font-size:1.05rem; font-weight:700; border:0; border-radius:999px; padding:14px 24px; cursor:pointer; }
+.btn-main{ width:100%; background:linear-gradient(90deg,#ff8ac8,#b46cff); color:#1a0e24; box-shadow:0 6px 24px rgba(255,138,200,.4); }
+.btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid rgba(255,214,238,.4); }
+.btn:disabled{ opacity:.4; cursor:default; }
+.btn:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+.linkbtn{ background:none; border:0; color:var(--muted); font:inherit; font-size:.9rem; text-decoration:underline; cursor:pointer; padding:8px; }
+.mute{ position:fixed; z-index:40; top:calc(env(safe-area-inset-top,0px) + 12px); right:12px; width:42px; height:42px; border-radius:50%;
+  border:1.5px solid rgba(255,214,238,.3); background:rgba(26,14,36,.7); color:var(--ink); font-size:1.1rem; cursor:pointer; }
+/* mode buttons */
+.modes{ display:flex; flex-direction:column; gap:14px; width:100%; }
+.mode{ font:inherit; color:var(--ink); border-radius:22px; padding:18px 16px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.mode span{ font-size:2.4rem; } .mode b{ font-size:1.25rem; } .mode small{ color:var(--muted); font-size:.86rem; }
+.m-prank{ background:linear-gradient(160deg,#4a1a4e,#200c26); border:2px solid var(--pink); box-shadow:0 0 24px rgba(255,138,200,.35); }
+.m-help{ background:linear-gradient(160deg,#2a1a50,#120a26); border:2px solid var(--purple); box-shadow:0 0 24px rgba(180,108,255,.35); }
+.mode:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+.mode:active{ transform:scale(.98); }
+.fox{ font-size:3.4rem; animation:bob 2s ease-in-out infinite alternate; }
+@keyframes bob{ from{ transform:translateY(0) rotate(-4deg);} to{ transform:translateY(-8px) rotate(4deg);} }
+/* game */
+.tierTag{ font-size:.85rem; font-weight:700; padding:4px 14px; border-radius:999px; border:1.5px solid var(--tc); color:var(--tc); }
+.status{ min-height:2.6em; font-size:1.08rem; font-weight:700; line-height:1.4; }
+.table{ position:relative; width:100%; height:210px; margin-top:6px; }
+.table::before{ content:""; position:absolute; left:-4%; right:-4%; bottom:8px; height:46px; border-radius:50%; background:radial-gradient(ellipse at center, #6a3a2a 0%, #3a1c14 70%); box-shadow:0 10px 30px rgba(0,0,0,.5); }
+.slot{ position:absolute; bottom:22px; width:30%; height:170px; transform:translateX(-50%); transition-property:left; transition-timing-function:ease-in-out; }
+.slot .lift{ position:absolute; left:0; right:0; bottom:0; height:130px; transition:transform .45s cubic-bezier(.3,1.4,.5,1); z-index:2; }
+.slot.up .lift{ transform:translateY(-78px) rotate(-6deg); }
+.slot .arc{ position:absolute; inset:0; }
+.slot.hop .arc{ animation:hop var(--d) ease-in-out; }
+.slot.dip .arc{ animation:dip var(--d) ease-in-out; }
+@keyframes hop{ 50%{ transform:translateY(-26px) scale(1.04);} }
+@keyframes dip{ 50%{ transform:translateY(10px) scale(.96);} }
+.cupbtn{ position:absolute; inset:0; background:none; border:0; padding:0; cursor:pointer; border-radius:18px; }
+.cupbtn:disabled{ cursor:default; }
+.cupbtn:focus-visible{ outline:3px dashed var(--gold); outline-offset:4px; }
+.cup{ width:100%; height:100%; display:block; filter:drop-shadow(0 8px 10px rgba(0,0,0,.45)); }
+.tofu{ position:absolute; left:50%; bottom:6px; width:52%; transform:translateX(-50%); z-index:1; opacity:0; transition:opacity .15s; }
+/* tofu only exists visually while its cup is lifted, so it can never peek out during the shuffle */
+.slot.hasTofu.up .tofu{ opacity:1; transition-delay:.08s; }
+.golden .tofu path:nth-child(1){ fill:#ffcf3a; } .golden .tofu path:nth-child(2){ fill:#fff3a8; }
+.golden .slot.hasTofu.up .tofu{ filter:drop-shadow(0 0 10px #ffd27a) drop-shadow(0 0 22px #ffd27a); }
+.goldtag{ font-size:.85rem; font-weight:700; padding:4px 14px; border-radius:999px; color:#2a1a00; background:linear-gradient(90deg,#ffd27a,#fff3a8); box-shadow:0 0 16px rgba(255,210,122,.8); animation:gp 1s ease-in-out infinite alternate; }
+.goldtag[hidden]{ display:none; }
+@keyframes gp{ from{ transform:scale(1);} to{ transform:scale(1.06);} }
+.streak{ margin-top:6px; font-weight:700; color:#ffb35a; font-size:.95rem; }
+.eggbox{ position:fixed; inset:0; z-index:45; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); padding:24px; }
+.eggbox[hidden]{ display:none; }
+.egg-in{ background:#24102e; border:2px solid var(--pink); border-radius:22px; padding:26px 20px; text-align:center; max-width:320px; animation:pop .5s cubic-bezier(.3,1.4,.5,1) both; }
+.egg-in .fx{ font-size:3.6rem; } .egg-in p{ font-size:1.15rem; font-weight:700; line-height:1.6; margin:8px 0 0; }
+.ready .slot .cup{ animation:glow 1.2s ease-in-out infinite alternate; }
+@keyframes glow{ from{ filter:drop-shadow(0 8px 10px rgba(0,0,0,.45)); } to{ filter:drop-shadow(0 0 14px rgba(255,214,122,.8)); } }
+.slot.pick .cup{ filter:drop-shadow(0 0 16px var(--gold)) !important; }
+.cheatfox{ position:absolute; left:50%; top:-10px; transform:translateX(-50%) scale(0); font-size:4rem; transition:transform .5s cubic-bezier(.3,1.6,.5,1); z-index:5; pointer-events:none; }
+.cheatfox.on{ transform:translateX(-50%) scale(1); }
+/* pick cards */
+.cards{ display:flex; gap:10px; width:100%; justify-content:center; perspective:900px; }
+.pc{ flex:1; max-width:120px; aspect-ratio:3/4.4; position:relative; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.2,.8,.2,1); cursor:pointer; border:0; padding:0; background:none; font:inherit; color:inherit; }
+.pc.flip{ transform:rotateY(180deg); }
+.pc .f{ position:absolute; inset:0; border-radius:14px; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; }
+.pc .bk{ background:radial-gradient(circle at 50% 40%, #6a2a7a, #2a0e36); border:2px solid var(--pink); font-size:2.2rem; box-shadow:0 0 18px rgba(255,138,200,.35); }
+.pc .fr{ transform:rotateY(180deg); background:linear-gradient(170deg,#3a1a4a,#1a0a24); border:2px solid var(--tc); font-size:.78rem; line-height:1.4; text-align:center; }
+.pc .fr .e{ font-size:1.8rem; margin-bottom:4px; }
+.pc.dim .f{ opacity:.5; }
+.pc.chosen .fr{ box-shadow:0 0 24px var(--tc); }
+.pc:focus-visible{ outline:3px solid #fff; outline-offset:3px; border-radius:14px; }
+/* result card */
+.rcard{ width:min(86vw,340px); background:linear-gradient(170deg,#3a1a4a,#160a20); border:3px solid var(--rc); border-radius:22px; padding:18px 16px 14px; box-shadow:0 0 34px color-mix(in srgb, var(--rc) 45%, transparent); position:relative; animation:pop .6s cubic-bezier(.3,1.4,.5,1) both; }
+@keyframes pop{ from{ transform:scale(.6) rotate(-6deg); opacity:0;} to{ transform:none; opacity:1;} }
+.rcard .hd{ font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--rc); border:1.5px solid var(--rc); border-radius:999px; padding:3px 12px; display:inline-block; }
+.rcard .e{ font-size:4rem; line-height:1.1; margin:12px 0 6px; filter:drop-shadow(0 0 14px var(--rc)); }
+.rcard .t{ font-size:1.2rem; font-weight:700; line-height:1.45; margin-bottom:6px; }
+.rcard .d{ font-size:.9rem; color:var(--muted); line-height:1.6; }
+.rcard .du{ margin-top:8px; font-size:.9rem; font-weight:700; color:var(--rc); }
+.rcard .tm{ margin-top:4px; font-size:1.9rem; font-weight:700; font-variant-numeric:tabular-nums; }
+.rcard .who{ margin-top:12px; border-top:1.5px dashed rgba(255,214,238,.25); padding-top:10px; font-size:.92rem; line-height:1.6; }
+.rcard .who b{ color:var(--rc); }
+.rcard .note{ margin-top:8px; font-size:.75rem; color:var(--muted); }
+.howto{ margin:0; color:var(--muted); font-size:.92rem; line-height:1.7; }
+.chatline{ width:100%; background:#12081a; border:1.5px dashed var(--pink); border-radius:14px; padding:10px 12px; font-size:.95rem; word-break:break-word; }
+.row{ display:flex; gap:10px; width:100%; } .row .btn{ flex:1; padding:12px 8px; font-size:.98rem; }
+.follow{ display:flex; gap:10px; width:100%; }
+.chan{ flex:1; font:inherit; font-weight:700; font-size:.95rem; color:var(--ink); background:#12081a; border:1.5px dashed #fe2c55; border-radius:999px; padding:11px 6px; cursor:pointer; }
+.chan.ok{ border-style:solid; border-color:var(--pink); color:var(--pink); }
+#copied{ color:var(--pink); font-size:.9rem; min-height:1.2em; margin:-6px 0 0; }
+.manual{ width:100%; font:inherit; font-size:16px; color:var(--ink); background:#12081a; border:1.5px solid var(--pink); border-radius:12px; padding:10px; resize:none; -webkit-user-select:text; user-select:text; }
+.burst{ position:fixed; z-index:30; pointer-events:none; font-size:18px; animation:bu 1.4s ease-out forwards; }
+@keyframes bu{ from{ transform:translate(-50%,-50%) scale(.4); opacity:1;} to{ transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(360deg) scale(1.2); opacity:0;} }
+/* info */
+.tabs{ display:flex; gap:6px; width:100%; }
+.tab{ flex:1; font:inherit; font-weight:700; font-size:.88rem; padding:9px 4px; border-radius:999px; border:1.5px solid rgba(255,214,238,.3); background:transparent; color:var(--ink); cursor:pointer; }
+.tab.on{ background:var(--ink); color:#1a0e24; }
+.list{ width:100%; text-align:left; display:flex; flex-direction:column; gap:12px; }
+.list h3{ margin:0 0 6px; font-size:1rem; }
+.it{ display:flex; gap:10px; padding:9px 10px; border-radius:12px; background:rgba(0,0,0,.28); border-left:3px solid var(--tc); margin-bottom:6px; }
+.it .ie{ font-size:1.3rem; } .it .t{ font-weight:700; font-size:.92rem; line-height:1.45; } .it .m{ font-size:.78rem; color:var(--tc); font-weight:700; }
+.odds{ width:100%; border-collapse:collapse; font-size:.85rem; margin-top:10px; }
+.odds th,.odds td{ padding:6px 4px; text-align:center; border-bottom:1px solid rgba(255,214,238,.12); }
+.odds th{ color:var(--pink); }
+.howbox ol{ margin:0 0 8px; padding-left:22px; line-height:1.9; }
+@media (prefers-reduced-motion: reduce){
+  .petals i,.fox,.ready .slot .cup{ animation:none; }
+}
+</style>
+</head>
+<body>
+<div class="petals" id="petals" aria-hidden="true"></div>
+<svg class="torii" viewBox="0 0 400 220" aria-hidden="true"><path d="M10 40 Q200 10 390 40 L384 58 Q200 32 16 58 Z M40 74 H360 V88 H40 Z M80 58 V220 H100 V58 Z M300 58 V220 H320 V58 Z M190 74 V88" fill="#ff8ac8"/></svg>
+<button id="mute" class="mute" aria-label="ปิดเสียง">🔊</button>
+<div class="eggbox" id="eggBox" hidden><div class="egg-in"><div class="fx">🦊</div><p>จะมาดวลกับข้าเองเหรอ?<br>กล้าดีนี่… เข้ามาเลย!</p></div></div>
+<main>
+
+<!-- start -->
+<section class="scene on" id="sStart">
+  <div class="fox">🦊</div>
+  <h1>ดวลกับจิ้งจอก</h1>
+  <p class="sub">โดเนทให้ Yulumi <b>50</b> บาทขึ้นไป<br>แล้วมาท้าดวลเกมทายถ้วยกับยาเอะ!</p>
+  <div class="modes">
+    <button class="mode m-prank" id="pickPrank"><span>🦊</span><b>แกล้งยาเอะ</b><small>ชนะจิ้งจอก ได้สั่งแกล้งยาเอะ</small></button>
+    <button class="mode m-help" id="pickHelp"><span>⛩️</span><b>ช่วยยาเอะ</b><small>ชนะจิ้งจอก ยกเลิกคำแกล้งให้ยาเอะ</small></button>
+  </div>
+  <p class="small">⚠️ แพ้จิ้งจอก = โดนแกล้งกลับ!</p>
+  <button class="btn btn-ghost" id="openInfo" style="width:100%">📜 วิธีเล่น · รายการทั้งหมด</button>
+</section>
+
+<!-- form -->
+<section class="scene" id="sForm">
+  <div class="fox" id="formIco">🦊</div>
+  <h1 id="formTitle">แกล้งยาเอะ</h1>
+  <div class="box">
+    <label for="name">ชื่อที่ใช้ตอนโดเนท</label>
+    <input id="name" maxlength="30" autocomplete="off" placeholder="เช่น เต้าหู้ทอดน้อย">
+    <label for="amt">ยอดที่โดเนท (บาท)</label>
+    <input id="amt" type="number" inputmode="numeric" min="1" placeholder="เช่น 100">
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn btn-main" id="go">ท้าดวลจิ้งจอก 🍵</button>
+  </div>
+  <p class="small">ยิ่งโดเนทเยอะ ถ้วยยิ่งสลับช้า และจิ้งจอกโกงน้อยลง…</p>
+  <button class="linkbtn" id="backStart">← เปลี่ยนโหมด</button>
+</section>
+
+<!-- game -->
+<section class="scene" id="sGame">
+  <span class="tierTag" id="tierTag"></span>
+  <span class="goldtag" id="goldTag" hidden>✨ เต้าหู้ทองคำ! ชนะได้ 2 เท่า ✨</span>
+  <div class="status" id="status" aria-live="polite"></div>
+  <div class="table" id="table">
+    <div class="cheatfox" id="cheatFox" aria-hidden="true">😜🦊</div>
+  </div>
+  <button class="btn btn-main" id="retry" hidden>แก้มือฟรี! 🔁</button>
+</section>
+
+<!-- pick cards -->
+<section class="scene" id="sPick">
+  <div class="fox">🦊</div>
+  <h1 style="font-size:1.6rem">ชนะจิ้งจอก! 🎉</h1>
+  <p class="sub" id="pickSub">จิ้งจอกยื่นไพ่ 3 ใบ… เลือกคำแกล้ง 1 ใบ</p>
+  <div class="cards" id="cards"></div>
+  <button class="btn btn-main" id="takeCard" hidden>รับคำแกล้งใบนี้</button>
+</section>
+
+<!-- result -->
+<section class="scene" id="sResult">
+  <div class="rcard" id="rcard">
+    <span class="hd" id="rHd"></span>
+    <div class="e" id="rE"></div>
+    <div class="t" id="rT"></div>
+    <div class="d" id="rD"></div>
+    <div class="du" id="rDu"></div>
+    <div class="streak" id="rStreak" hidden></div>
+    <div class="tm" id="rTm" hidden></div>
+    <div class="who"><span id="rWhoLbl">ผู้ท้าดวล</span> <b id="rWho"></b><br>โดเนท <b id="rAmt"></b> บาท • <span id="rTime"></span></div>
+    <div class="note" id="rNote"></div>
+  </div>
+  <p class="howto" id="howto">คัดลอกข้อความไปพิมพ์ในแชทไลฟ์<br>Yulumi จะเช็กชื่อกับยอดโดเนท</p>
+  <div class="chatline" id="chatline"></div>
+  <button class="btn btn-main" id="timerBtn" hidden>⏱️ เริ่มจับเวลา</button>
+  <div class="row">
+    <button class="btn btn-ghost" id="copy">คัดลอกข้อความ</button>
+    <button class="btn btn-ghost" id="again">เล่นอีกครั้ง</button>
+  </div>
+  <p id="copied" aria-live="polite"></p>
+  <textarea id="manual" class="manual" readonly hidden rows="2" aria-label="ข้อความสำหรับคัดลอก"></textarea>
+  <p class="small">ติดตาม Yulumi ใน TikTok (แตะเพื่อคัดลอกชื่อ)</p>
+  <div class="follow">
+    <button class="chan" data-name="yuu_mil">@yuu_mil 📋</button>
+    <button class="chan" data-name="yuulumi9">@yuulumi9 📋</button>
+  </div>
+  <p class="small">"เล่นอีกครั้ง" ใช้สำหรับการโดเนทครั้งถัดไปเท่านั้นนะ</p>
+</section>
+
+<!-- info -->
+<section class="scene" id="sInfo">
+  <h1 style="font-size:1.6rem">📜 วิธีเล่น</h1>
+  <div class="box howbox">
+    <ol>
+      <li><b>โดเนท</b> ให้ Yulumi 50 บาทขึ้นไป</li>
+      <li><b>เลือกโหมด</b> 🦊 แกล้ง หรือ ⛩️ ช่วยยาเอะ</li>
+      <li><b>กรอกชื่อกับยอด</b> ให้ตรงกับที่โดเนท</li>
+      <li><b>จำถ้วยที่มีเต้าหู้ทอด</b> แล้วตามให้ทันตอนสลับ</li>
+      <li><b>แตะถ้วย</b> ที่คิดว่ามีเต้าหู้</li>
+      <li><b>คัดลอกผล</b> ไปวางในแชท 🎉</li>
+    </ol>
+    <p class="small">💡 ยิ่งโดเนทเยอะ ถ้วยยิ่งสลับช้า และคำแกล้งยิ่งหนัก<br>
+    🎉 ชนะ (โหมดแกล้ง) = เลือกไพ่คำแกล้ง 1 ใน 3 ใบ<br>
+    ⛩️ ชนะ (โหมดช่วย) = ยกเลิกคำแกล้งให้ยาเอะ 1 อัน<br>
+    🦊 แพ้ = โดนจิ้งจอกแกล้งกลับ<br>
+    ✨ นานๆ ครั้งจะเจอ <b>เต้าหู้ทองคำ</b> ทายถูกได้รางวัล 2 เท่า!<br>
+    🔥 ชนะติดกันหลายครั้ง เอาไปอวดในแชทได้<br>
+    😜 ระวัง! จิ้งจอกชอบโกง… แต่ถ้าโดนโกง ได้แก้มือฟรี 1 ครั้ง</p>
+    <table class="odds">
+      <tr><th>ยอดโดเนท</th><th>ความเร็วถ้วย</th><th>จิ้งจอกโกง</th></tr>
+      <tr><td>50–99</td><td>เร็วมากๆๆ</td><td>6 ใน 10</td></tr>
+      <tr><td>100–299</td><td>เร็วมาก</td><td>4 ใน 10</td></tr>
+      <tr><td>300+</td><td>เร็ว</td><td>2 ใน 10</td></tr>
+    </table>
+  </div>
+  <div class="tabs"><button class="tab on" data-t="1">🌸 เบา</button><button class="tab" data-t="2">🏮 กลาง</button><button class="tab" data-t="3">⚡ หนัก</button><button class="tab" data-t="p">🦊 ลงโทษ</button></div>
+  <div class="list" id="list"></div>
+  <button class="btn btn-ghost" id="closeInfo">← กลับ</button>
+</section>
+</main>
+
+<script>
+(function(){
+  var MIN=50, GOLD=0.10;
+  /* ===== คำแกล้ง (แก้ได้ตรงนี้) m = นาที, 0 = ครั้งเดียว ===== */
+  var PRANKS={
+    1:[ {e:'😳',t:'ผู้ชนะพิมพ์ประโยคชมตัวเอง ยาเอะต้องอ่านออกเสียงดังๆ',m:0},
+        {e:'🎲',t:'ถาม "อันไหนดีกว่า" 3 ข้อ ยาเอะต้องเลือกทันที ห้ามคิด',m:0},
+        {e:'📜',t:'ยาเอะทำนายดวงให้ผู้ชนะแบบเจ้าศาลเจ้า',m:0},
+        {e:'🤫',t:'เล่าความลับเล็กๆ 1 อย่าง',m:0},
+        {e:'💬',t:'ชมผู้ชนะ 3 ประโยค',m:0},
+        {e:'🔤',t:'ทุกประโยคลงท้ายด้วย "เจ้าค่ะ"',m:3} ],
+    2:[ {e:'🤥',t:'เกม 2 จริง 1 โกหก ยาเอะเล่า 3 เรื่อง ให้ผู้ชนะทาย',m:0},
+        {e:'🙈',t:'ผู้ชนะเขียนประโยคเขินๆ ให้ยาเอะอ่านออกเสียง',m:0},
+        {e:'🔥',t:'ผู้ชนะตั้งคำต้องห้าม 1 คำ',m:10},
+        {e:'📖',t:'เล่าเรื่องน่าอายของตัวเอง 1 เรื่อง',m:0},
+        {e:'🎙️',t:'รีวิวชื่อ TikTok ของผู้ชนะแบบจัดเต็ม ทั้งชม ทั้งแซว',m:0},
+        {e:'🏷️',t:'ผู้ชนะตั้งฉายาให้ยาเอะ',m:10},
+        {e:'🥤',t:'ดื่มน้ำผัก 2 อึก',m:0,food:1},
+        {e:'🍅',t:'ดื่มน้ำมะเขือเทศ 2 อึก',m:0,food:1},
+        {e:'🥗',t:'กินสลัดผัก 2 คำ',m:0,food:1},
+        {e:'🟢',t:'กินถั่ววาซาบิ 5 เม็ด',m:0,food:1},
+        {e:'🥚',t:'กินไข่ต้มซอสเผ็ด 1 คำ',m:0,food:1} ],
+    3:[ {e:'👑',t:'เรียกผู้ชนะว่า "นายท่าน" และอ่านแชทเขาก่อนทุกคน',m:15},
+        {e:'📝',t:'ผู้ชนะเขียนบทพูด 1 ประโยค ยาเอะต้องพูดตามแบบตั้งใจ',m:0},
+        {e:'🎁',t:'แต่งกลอนอวยพรสดๆ ให้ผู้ชนะ 4 บรรทัด',m:0},
+        {e:'💌',t:'อ่านข้อความของผู้ชนะ แล้วตอบกลับในบทยาเอะแบบจัดเต็ม',m:0},
+        {e:'🕯️',t:'ผู้ชนะเลือกหัวข้อคุย',m:10},
+        {e:'🎭',t:'ผู้ชนะสั่งได้ 1 อย่าง (ภายในขอบเขตที่ยาเอะยอม)',m:0} ]
+  };
+  var PUNISH=[
+    {e:'🙇',t:'พิมพ์ "ยาเอะ-ซามะ ข้าน้อยยอมแพ้" 3 ครั้ง',m:0},
+    {e:'💬',t:'พิมพ์ชมยาเอะ 5 ข้อความไม่ซ้ำ',m:0},
+    {e:'🦊',t:'พิมพ์ 🦊 ให้ครบ 10 ตัว',m:0},
+    {e:'⛩️',t:'เรียกยาเอะว่า "ท่านกูจิ" ทุกข้อความ',m:5},
+    {e:'🍤',t:'ยาเอะตั้งฉายาให้ผู้แพ้ เช่น "เต้าหู้ทอดน้อย" แล้วเรียกชื่อนี้',m:10},
+    {e:'❓',t:'ตอบคำถามจากยาเอะ 1 ข้อแบบจริงใจ',m:0},
+    {e:'👋',t:'แนะนำตัวในแชทให้ทุกคนรู้จัก',m:0},
+    {e:'💗',t:'กดหัวใจรัวๆ 1,000 ครั้ง',m:0},
+    {e:'📤',t:'แชร์ไลฟ์ให้เพื่อน 1 คน',m:0}
+  ];
+  var HELP={1:'ยกเลิกคำแกล้งระดับ 🌸 เบา 1 อัน', 2:'ยกเลิกคำแกล้งระดับ 🌸 เบา หรือ 🏮 กลาง 1 อัน', 3:'ยกเลิกคำแกล้งได้ทุกระดับ 1 อัน'};
+  // cheat = โอกาสจิ้งจอกโกง, ms = เวลาต่อการสลับ 1 ครั้ง (ยิ่งน้อยยิ่งเร็ว)
+  var TIER={1:{name:'🌸 เบา',c:'var(--t1)',swaps:8,ms:205,cheat:.6},2:{name:'🏮 กลาง',c:'var(--t2)',swaps:6,ms:240,cheat:.4},3:{name:'⚡ หนัก',c:'var(--t3)',swaps:4,ms:360,cheat:.2}};
+
+  function $(id){ return document.getElementById(id); }
+  function show(id){ document.querySelectorAll('.scene').forEach(function(s){ s.classList.remove('on'); }); $(id).classList.add('on'); window.scrollTo(0,0); }
+  function vib(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+  function pad(n){ return (n<10?'0':'')+n; }
+  function esc(t){ return String(t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function shuffleArr(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  // petals
+  for(var i=0;i<22;i++){ var p=document.createElement('i'); p.style.left=Math.random()*100+'%'; p.style.setProperty('--dx',(Math.random()*120-60)+'px');
+    p.style.animationDuration=(7+Math.random()*7)+'s'; p.style.animationDelay=(-Math.random()*12)+'s'; p.style.transform='scale('+(.6+Math.random()*.8)+')'; $('petals').appendChild(p); }
+
+  // ---------- audio ----------
+  var ac=null, master=null, nb=null, muted=false;
+  function initAudio(){ if(ac) return; try{ var A=window.AudioContext||window.webkitAudioContext; if(!A) return; ac=new A(); master=ac.createGain(); master.gain.value=muted?0:.8; master.connect(ac.destination);
+    nb=ac.createBuffer(1,ac.sampleRate,ac.sampleRate); var d=nb.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; }catch(e){ ac=null; } }
+  function now(){ return ac?ac.currentTime+.02:0; }
+  function hz(m){ return 440*Math.pow(2,(m-69)/12); }
+  function tone(f,t,dur,type,vol,f2){ if(!ac) return; var o=ac.createOscillator(), g=ac.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+.05); }
+  function noise(t,dur,f1,f2,vol,q){ if(!ac) return; var s=ac.createBufferSource(), bp=ac.createBiquadFilter(), g=ac.createGain(); s.buffer=nb; bp.type='bandpass'; bp.Q.value=q||3;
+    bp.frequency.setValueAtTime(f1,t); bp.frequency.exponentialRampToValueAtTime(f2,t+dur); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(t); s.stop(t+dur+.05); }
+  function sBell(){ var t=now(); [1,2.76,5.4].forEach(function(r,k){ tone(520*r,t,2.2-k*.5,'sine',.12/(k+1)); }); }
+  function sClack(){ var t=now(); noise(t,.06,2500,1500,.25,4); tone(180,t,.08,'triangle',.15,120); }
+  function sWhoosh(d){ var t=now(); noise(t,d,600,1800,.08,1.5); }
+  function sGiggle(long){
+    if(!ac||muted) return; var t=now(), n=long?9:5, base=88+Math.floor(Math.random()*3);
+    for(var k=0;k<n;k++){
+      var st=t+k*(.085+Math.random()*.03), f=hz(base+2*Math.sin(Math.PI*k/(n-1))-k*.25)*(1+Math.random()*.03), dur=(k===n-1)?.28:.07;
+      var o=ac.createOscillator(), g=ac.createGain(), bp=ac.createBiquadFilter();
+      o.type='sawtooth'; o.frequency.setValueAtTime(f*1.1,st); o.frequency.exponentialRampToValueAtTime(f*.88,st+dur);
+      bp.type='bandpass'; bp.frequency.value=Math.min(4200,f*1.8); bp.Q.value=2.5;
+      g.gain.setValueAtTime(.0001,st); g.gain.exponentialRampToValueAtTime(.16,st+.01); g.gain.exponentialRampToValueAtTime(.0001,st+dur);
+      o.connect(bp); bp.connect(g); g.connect(master); o.start(st); o.stop(st+dur+.05);
+      noise(st,.025,3200,3800,.05,2);
+    }
+  }
+  var gigT=null;
+  function ambientGiggle(){ clearTimeout(gigT); gigT=setTimeout(function(){ if(!document.hidden) sGiggle(Math.random()<.35); ambientGiggle(); }, 7000+Math.random()*7000); }
+  function sWin(){ var t=now(); [76,79,83,88,91].forEach(function(m,k){ tone(hz(m),t+k*.07,1,'triangle',.1); tone(hz(m+12),t+k*.07,.5,'sine',.03); }); }
+  function sLose(){ var t=now(); [67,66,65,64].forEach(function(m,k){ tone(hz(m-12),t+k*.32,k===3?.9:.3,'sawtooth',.08); }); setTimeout(function(){ sGiggle(true); },1300); }
+  function sBoing(){ var t=now(); tone(220,t,.5,'sine',.25,660); }
+  $('mute').onclick=function(){ muted=!muted; this.textContent=muted?'🔇':'🔊'; this.setAttribute('aria-label',muted?'เปิดเสียง':'ปิดเสียง'); if(master) master.gain.value=muted?0:.8; };
+
+  // ---------- flow ----------
+  var MODE='prank', donor={name:'',amt:0}, tier=1;
+  function wake(){ initAudio(); if(ac){ ac.resume(); if(!gigT){ sGiggle(false); ambientGiggle(); } } }
+  $('pickPrank').onclick=function(){ wake(); MODE='prank'; $('formIco').textContent='🦊'; $('formTitle').textContent='แกล้งยาเอะ'; show('sForm'); };
+  $('pickHelp').onclick=function(){ wake(); MODE='help'; $('formIco').textContent='⛩️'; $('formTitle').textContent='ช่วยยาเอะ'; show('sForm'); };
+  $('backStart').onclick=function(){ show('sStart'); };
+  $('go').onclick=function(){
+    var n=$('name').value.trim(), a=parseFloat($('amt').value);
+    if(!n){ $('err').textContent='ใส่ชื่อที่ใช้โดเนทด้วยนะ'; $('name').focus(); return; }
+    if(!(a>=MIN)){ $('err').textContent='ยอดขั้นต่ำ '+MIN+' บาท ถึงจะท้าดวลได้'; $('amt').focus(); return; }
+    $('err').textContent=''; donor={name:n, amt:Math.floor(a)}; tier = donor.amt>=300?3 : donor.amt>=100?2 : 1;
+    initAudio(); if(ac) ac.resume();
+    if(/ยาเอะ|yae|yulumi|ยูลูมิ|ยูมิ/i.test(n)){ $('eggBox').hidden=false; sGiggle(true); setTimeout(function(){ $('eggBox').hidden=true; startDuel(true); },2400); return; }
+    startDuel(true);
+  };
+
+  // ---------- cup game ----------
+  var POS=[16.7,50,83.3], slots=[], cupAt=[0,1,2], tofuCup=0, canPick=false, firstTry=true, golden=false;
+  var CUP_SVG='<svg class="cup" viewBox="0 0 120 130"><defs><linearGradient id="cg" x1="0" x2="1"><stop offset="0" stop-color="#5a2a7a"/><stop offset=".5" stop-color="#8a4ab0"/><stop offset="1" stop-color="#4a1a66"/></linearGradient></defs>'+
+    '<path d="M14 128 L26 22 Q60 6 94 22 L106 128 Z" fill="url(#cg)" stroke="#2a0e36" stroke-width="3"/>'+
+    '<ellipse cx="60" cy="20" rx="34" ry="9" fill="#a868d0" stroke="#2a0e36" stroke-width="3"/>'+
+    '<path d="M18 104 Q60 116 102 104" stroke="#ffd27a" stroke-width="5" fill="none"/>'+
+    '<g fill="#ffb3d9"><circle cx="46" cy="66" r="6"/><circle cx="56" cy="60" r="6"/><circle cx="62" cy="70" r="6"/><circle cx="52" cy="76" r="6"/><circle cx="42" cy="74" r="6"/><circle cx="52" cy="68" r="4" fill="#ffd27a"/></g>'+
+    '<g fill="#ffb3d9" opacity=".8"><circle cx="78" cy="48" r="4"/><circle cx="84" cy="44" r="4"/><circle cx="86" cy="52" r="4"/><circle cx="80" cy="55" r="4"/></g></svg>';
+  var TOFU_SVG='<svg class="tofu" viewBox="0 0 80 46"><path d="M6 14 L40 2 L74 14 L74 34 L40 44 L6 34 Z" fill="#e8a040"/><path d="M6 14 L40 26 L74 14 L40 2 Z" fill="#f4c068"/><path d="M40 26 V44" stroke="#c07a28" stroke-width="2"/><path d="M14 18 l4 2 M28 22 l4 1 M52 22 l4 -1 M62 18 l4 -2" stroke="#c07a28" stroke-width="2"/></svg>';
+  function buildTable(){
+    var tb=$('table'); tb.querySelectorAll('.slot').forEach(function(s){ s.remove(); }); slots=[];
+    for(var k=0;k<3;k++){
+      var s=document.createElement('div'); s.className='slot'; s.style.left=POS[k]+'%';
+      s.innerHTML='<div class="arc">'+TOFU_SVG+'<div class="lift">'+CUP_SVG+'<button class="cupbtn" aria-label="ถ้วยใบที่ '+(k+1)+'" disabled></button></div></div>';
+      (function(idx){ s.querySelector('.cupbtn').onclick=function(){ choose(idx); }; })(k);
+      tb.appendChild(s); slots.push(s);
+    }
+  }
+  function setStatus(t){ $('status').textContent=t; }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  function startDuel(isFirst){
+    firstTry=isFirst; canPick=false;
+    var T=TIER[tier]; $('tierTag').textContent='ระดับ '+T.name+(isFirst?'':' • แก้มือ'); $('tierTag').style.setProperty('--tc',T.c);
+    $('retry').hidden=true; $('cheatFox').classList.remove('on'); $('table').classList.remove('ready');
+    buildTable(); cupAt=[0,1,2]; tofuCup=Math.floor(Math.random()*3);
+    if(isFirst) golden = Math.random()<GOLD;
+    $('table').classList.toggle('golden', golden); $('goldTag').hidden=!golden;
+    slots.forEach(function(s,i){ s.classList.toggle('hasTofu', i===tofuCup); s.style.transitionDuration=T.ms+'ms'; s.style.setProperty('--d',T.ms+'ms'); });
+    show('sGame'); if(isFirst) sBell();
+    runShuffle(T);
+  }
+  async function runShuffle(T){
+    setStatus(golden ? '✨ เต้าหู้ทองคำ! ซ่อนไว้ใต้ถ้วยนี้… จำให้ดี 👀' : 'จิ้งจอกซ่อนเต้าหู้ทอดไว้ใต้ถ้วยนี้… จำไว้นะ 👀');
+    if(golden){ setTimeout(function(){ var t=now(); [84,88,91,96,100].forEach(function(m,k){ tone(hz(m),t+k*.06,.9,'sine',.08); }); },700); }
+    await wait(600); slots[tofuCup].classList.add('up'); sClack();
+    await wait(1500); slots[tofuCup].classList.remove('up'); sClack();
+    await wait(650); setStatus('สลับแล้วนะ! ตามให้ทัน 🌀');
+    for(var k=0;k<T.swaps;k++){
+      var a=Math.floor(Math.random()*3), b=(a+1+Math.floor(Math.random()*2))%3;
+      var ca=cupAt.indexOf(a), cb=cupAt.indexOf(b);
+      cupAt[ca]=b; cupAt[cb]=a;
+      var sa=slots[ca], sb=slots[cb];
+      sa.classList.remove('hop','dip'); sb.classList.remove('hop','dip'); void sa.offsetWidth;
+      sa.classList.add('hop'); sb.classList.add('dip');
+      sa.style.left=POS[b]+'%'; sb.style.left=POS[a]+'%';
+      sWhoosh(T.ms/1000*.9); setTimeout(sClack, T.ms*.9);
+      await wait(T.ms+60);
+    }
+    slots.forEach(function(s){ s.classList.remove('hop','dip'); s.querySelector('.cupbtn').disabled=false; });
+    $('table').classList.add('ready'); canPick=true;
+    setStatus('เต้าหู้อยู่ใต้ถ้วยไหน? แตะเลย! 🍵');
+    setTimeout(function(){ slots[0].querySelector('.cupbtn').focus({preventScroll:true}); },50);
+  }
+  async function choose(idx){
+    if(!canPick) return; canPick=false; $('table').classList.remove('ready');
+    slots.forEach(function(s){ s.querySelector('.cupbtn').disabled=true; });
+    var s=slots[idx]; s.classList.add('pick');
+    await wait(250);
+    // fox cheats (only on the first try)
+    if(firstTry && Math.random()<TIER[tier].cheat){
+      slots.forEach(function(x){ x.classList.remove('hasTofu'); x.classList.add('up'); }); sClack();
+      setStatus('ว่างเปล่าทุกใบ!? จิ้งจอกโกง! 😜'); $('cheatFox').classList.add('on'); sBoing(); setTimeout(function(){ sGiggle(true); },400); vib([60,40,60]);
+      await wait(1400); setStatus('จับได้แล้ว! ได้แก้มือฟรี 1 ครั้ง'); $('retry').hidden=false; $('retry').focus({preventScroll:true});
+      return;
+    }
+    s.classList.add('up'); sClack();
+    var win = idx===tofuCup;
+    if(win){ setStatus('เจอเต้าหู้! ชนะจิ้งจอก 🎉'); sWin(); vib([80,40,80]); burst(s); await wait(1500); afterWin(); }
+    else { await wait(700); slots[tofuCup].classList.add('up'); sClack(); setStatus('ผิดถ้วย! เต้าหู้อยู่นี่ต่างหาก 🦊'); sLose(); vib(300); await wait(2200); afterLose(); }
+  }
+  $('retry').onclick=function(){ startDuel(false); };
+  function burst(el){
+    var b=(el||$('table')).getBoundingClientRect(), cx=b.left+b.width/2, cy=b.top+b.height/3;
+    for(var k=0;k<20;k++){ var p=document.createElement('span'); p.className='burst'; p.textContent=k%3?'🌸':'✨';
+      var a=Math.random()*Math.PI*2, d=80+Math.random()*120; p.style.left=cx+'px'; p.style.top=cy+'px';
+      p.style.setProperty('--dx',Math.cos(a)*d+'px'); p.style.setProperty('--dy',Math.sin(a)*d+'px');
+      document.body.appendChild(p); setTimeout((function(e){ return function(){ e.remove(); }; })(p),1500); }
+  }
+
+  // ---------- streak ----------
+  function getStreak(){ try{ return parseInt(localStorage.getItem('yae-streak')||'0',10)||0; }catch(e){ return 0; } }
+  function setStreak(n){ try{ localStorage.setItem('yae-streak', String(n)); }catch(e){} }
+  var streak=0;
+  // ---------- win/lose ----------
+  var picked=[], need=1;
+  function afterWin(){
+    streak=getStreak()+1; setStreak(streak);
+    if(MODE==='help'){ showResult('help',{e:'⛩️',t:(golden?HELP[tier].replace('1 อัน','2 อัน'):HELP[tier]),m:0}); return; }
+    need = golden ? 2 : 1;
+    $('pickSub').textContent = golden ? '✨ เต้าหู้ทองคำ! เลือกคำแกล้งได้ 2 ใบจาก 3 ใบ' : 'จิ้งจอกยื่นไพ่ 3 ใบ… เลือกคำแกล้ง 1 ใบ';
+    var pool=shuffleArr(PRANKS[tier].slice()).slice(0,3), box=$('cards'); box.innerHTML=''; picked=[]; $('takeCard').hidden=true;
+    var T=TIER[tier];
+    pool.forEach(function(c){
+      var b=document.createElement('button'); b.className='pc'; b.style.setProperty('--tc',T.c); b.setAttribute('aria-label','ไพ่คว่ำ');
+      b.innerHTML='<div class="f bk">🦊</div><div class="f fr"><div class="e">'+c.e+'</div>'+esc(c.t)+'</div>';
+      b.onclick=function(){
+        if(picked.length>=need || b.classList.contains('chosen')) return;
+        picked.push(c); sWin(); b.classList.add('flip','chosen'); b.setAttribute('aria-label',c.t);
+        if(picked.length<need) return;
+        box.querySelectorAll('.pc').forEach(function(x){ if(!x.classList.contains('chosen')){ x.classList.add('flip','dim'); } });
+        setTimeout(function(){ $('takeCard').hidden=false; $('takeCard').focus({preventScroll:true}); },900);
+      };
+      box.appendChild(b);
+    });
+    show('sPick'); sGiggle(false);
+  }
+  $('takeCard').onclick=function(){
+    if(!picked.length) return;
+    if(picked.length===1){ showResult('win',picked[0]); return; }
+    var a=picked[0], b=picked[1];
+    showResult('win',{e:a.e+b.e, t:a.t+' + '+b.t, m:Math.max(a.m,b.m), food:a.food||b.food});
+  };
+  function afterLose(){ streak=0; setStreak(0); showResult('lose', PUNISH[Math.floor(Math.random()*PUNISH.length)]); }
+
+  // ---------- result ----------
+  var curMin=0, tInt=null;
+  function showResult(kind,c){
+    var T=TIER[tier], col = kind==='lose' ? 'var(--red)' : kind==='help' ? 'var(--purple)' : T.c;
+    var hd = kind==='lose' ? '🦊 แพ้จิ้งจอก!' : kind==='help' ? '⛩️ ช่วยยาเอะสำเร็จ!' : '🎉 ชนะจิ้งจอก • '+T.name;
+    if(kind!=='lose' && golden) col='var(--gold)';
+    var d = new Date(), tm=pad(d.getHours())+':'+pad(d.getMinutes());
+    var dur = c.m>0 ? c.m+' นาที' : 'ครั้งเดียว';
+    $('rcard').style.setProperty('--rc',col);
+    $('rHd').textContent=hd; $('rE').textContent=c.e; $('rT').textContent=c.t;
+    $('rD').textContent = kind==='lose' ? (MODE==='help'?'ช่วยไม่สำเร็จ… ':'')+'ผู้ท้าดวลต้องทำในแชทเอง!' : kind==='help' ? 'ยาเอะเลือกได้ว่าจะยกเลิกคำแกล้งอันไหน' : 'ยาเอะต้องทำตามคำแกล้งนี้!';
+    $('rDu').textContent='⏳ '+dur;
+    $('rWhoLbl').textContent = kind==='lose' ? 'ผู้แพ้' : kind==='help' ? 'ผู้ช่วย' : 'ผู้ชนะ';
+    $('rWho').textContent=donor.name; $('rAmt').textContent=donor.amt; $('rTime').textContent=tm;
+    var note=''; if(kind==='win'){ note='🦊 ยาเอะมีสิทธิ์ข้ามเรื่องส่วนตัวได้เสมอ'; if(c.food) note+=' • ถ้าของหมดหรือไม่ไหว เปลี่ยนเป็นคำแกล้งอื่นได้'; }
+    $('rNote').textContent=note;
+    var prefix = kind==='lose' ? '😵 แพ้จิ้งจอก! บทลงโทษ:' : kind==='help' ? '⛩️ ช่วยยาเอะสำเร็จ!' : '🦊 ชนะจิ้งจอก! ('+T.name+')';
+    var extra=''; if(kind!=='lose' && golden) extra+=' ✨เต้าหู้ทอง'; if(kind!=='lose' && streak>=2) extra+=' 🔥ชนะติด '+streak;
+    $('chatline').textContent=prefix+' '+c.t+(c.m>0?' ('+dur+')':'')+extra+' | '+donor.name+' '+donor.amt+' บาท';
+    var st=$('rStreak'); if(kind!=='lose' && (streak>=2 || golden)){ st.hidden=false; st.textContent=(golden?'✨ เต้าหู้ทองคำ ':'')+(streak>=2?'🔥 ชนะติดกัน '+streak+' ครั้ง!':''); } else st.hidden=true;
+    $('howto').innerHTML = kind==='lose' ? 'คัดลอกไปบอกในแชท แล้วทำบทลงโทษซะ! 🦊<br>อยากแก้แค้น? <b>โดเนทอีกครั้ง</b>แล้วมาดวลใหม่' : 'คัดลอกข้อความไปพิมพ์ในแชทไลฟ์<br>Yulumi จะเช็กชื่อกับยอดโดเนท';
+    clearInterval(tInt); curMin=c.m; $('rTm').hidden=true; $('timerBtn').hidden=!(c.m>0); $('timerBtn').disabled=false; $('timerBtn').textContent='⏱️ เริ่มจับเวลา '+c.m+' นาที';
+    $('copied').textContent=''; $('manual').hidden=true;
+    show('sResult'); if(kind!=='lose'){ burst($('rcard')); } 
+  }
+  $('timerBtn').onclick=function(){
+    var end=Date.now()+curMin*60000, el=$('rTm'); el.hidden=false; this.disabled=true; this.textContent='กำลังจับเวลา…';
+    clearInterval(tInt); tInt=setInterval(function(){ var s=Math.max(0,Math.ceil((end-Date.now())/1000)); el.textContent=Math.floor(s/60)+':'+pad(s%60);
+      if(s<=0){ clearInterval(tInt); el.textContent='✨ หมดเวลาแล้ว'; vib([200,100,200]); sBell(); $('timerBtn').textContent='หมดเวลาแล้ว'; } },250);
+  };
+  // copy (works in in-app browsers too)
+  function copyText(text, cb){
+    var ok=false;
+    try{ var ta=document.createElement('textarea'); ta.value=text; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,text.length); ok=document.execCommand('copy'); document.body.removeChild(ta); }catch(e){ ok=false; }
+    if(ok){ cb(true); return; }
+    try{ if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(function(){ cb(true); },function(){ cb(false); }); return; } }catch(e){}
+    cb(false);
+  }
+  function manual(text){ var m=$('manual'); m.value=text; m.hidden=false; m.focus(); m.select(); }
+  $('copy').onclick=function(){ var t=$('chatline').textContent; copyText(t,function(ok){ if(ok){ $('copied').textContent='คัดลอกแล้ว ไปวางในแชทไลฟ์ได้เลย'; $('manual').hidden=true; } else { $('copied').textContent='กดค้างที่ข้อความด้านล่างแล้วเลือก "คัดลอก"'; manual(t); } }); };
+  document.querySelectorAll('.chan').forEach(function(b){ b.onclick=function(){ var n='@'+b.getAttribute('data-name');
+    copyText(n,function(ok){ if(ok){ b.classList.add('ok'); b.textContent=n+' ✓'; $('copied').textContent='คัดลอก '+n+' แล้ว ไปค้นหาใน TikTok ได้เลย'; setTimeout(function(){ b.classList.remove('ok'); b.textContent=n+' 📋'; },2000); }
+      else { $('copied').textContent='กดค้างที่ชื่อด้านล่างแล้วเลือก "คัดลอก"'; manual(n); } }); }; });
+  $('again').onclick=function(){ clearInterval(tInt); $('amt').value=''; show('sStart'); };
+
+  // ---------- info ----------
+  function renderInfo(t){
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')===t); });
+    var list = t==='p' ? PUNISH : PRANKS[t], col = t==='p' ? 'var(--red)' : TIER[t].c;
+    var title = t==='p' ? '🦊 บทลงโทษเมื่อแพ้ (ผู้แพ้ทำในแชท)' : 'คำแกล้งระดับ '+TIER[t].name+' ('+(t==='1'?'50–99':t==='2'?'100–299':'300+')+' บาท)';
+    var html='<div><h3 style="color:'+col+'">'+title+'</h3>';
+    list.forEach(function(c){ html+='<div class="it" style="--tc:'+col+'"><div class="ie">'+c.e+'</div><div><div class="t">'+esc(c.t)+'</div><div class="m">'+(c.m>0?'⏳ '+c.m+' นาที':'ครั้งเดียว')+'</div></div></div>'; });
+    if(t!=='p') html+='<p class="small">⛩️ โหมดช่วย ชนะแล้ว: '+HELP[t]+'</p>';
+    html+='</div>'; $('list').innerHTML=html;
+  }
+  document.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ renderInfo(b.getAttribute('data-t')); }; });
+  $('openInfo').onclick=function(){ wake(); renderInfo('1'); show('sInfo'); };
+  $('closeInfo').onclick=function(){ show('sStart'); };
+})();
+</script>
+</body>
+</html>
